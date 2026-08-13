@@ -1,0 +1,21 @@
+nelmio_api_doc:
+    type_info: true
+    html_config:
+        assets_mode: bundle
+    documentation:
+        info:
+            title: Inventory Reservation API
+            description: Concurrency-safe temporary inventory reservations for guest checkout.
+            version: 1.0.0
+        tags:
+            - name: Products
+              description: Product catalogue and available inventory
+            - name: Reservations
+              description: Temporary inventory reservation lifecycle
+            - name: System
+              description: Service health
+    areas:
+        default:
+            path_patterns:
+                - ^/api(?!/doc(?:\.json)?$)
+                - ^/health$

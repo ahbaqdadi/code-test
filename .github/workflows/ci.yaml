@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build and start services
+        run: docker compose up --build --wait
+
+      - name: Check API health
+        run: curl --fail --silent --show-error --insecure https://localhost/health
+
+      - name: Create test database
+        run: docker compose exec -T php php bin/console doctrine:database:create --env=test --if-not-exists
+
+      - name: Migrate test database
+        run: docker compose exec -T php php bin/console doctrine:migrations:migrate --env=test --no-interaction --all-or-nothing
+
+      - name: Run tests
+        run: docker compose exec -T -e XDEBUG_MODE=off php php bin/phpunit
+
+      - name: Validate project
+        run: |
+          docker compose exec -T php composer validate --strict
+          docker compose exec -T php php bin/console lint:container
+          docker compose exec -T php php bin/console doctrine:migrations:up-to-date --env=test
+
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose logs --no-color

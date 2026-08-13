@@ -1,0 +1,15 @@
+framework:
+    secret: '%env(APP_SECRET)%'
+    handle_all_throwables: true
+    php_errors:
+        log: true
+    router:
+        utf8: true
+    serializer:
+        name_converter: serializer.name_converter.camel_case_to_snake_case
+    validation:
+        email_validation_mode: html5
+
+when@test:
+    framework:
+        test: true
