@@ -26,7 +26,7 @@ final class Reservation
     #[ORM\Column(type: Types::GUID)]
     private string $id;
 
-    #[ORM\Column(name: 'idempotency_key', length: 255)]
+    #[ORM\Column(name: 'idempotency_key', length: 255, options: ['collation' => 'utf8mb4_bin'])]
     private string $idempotencyKey;
 
     #[ORM\Column(name: 'request_hash', length: 64, options: ['fixed' => true])]
