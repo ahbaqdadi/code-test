@@ -77,7 +77,7 @@ Create a mouse in the same way, then retain both returned product IDs.
 
 ### 2. Reserve multiple products
 
-Every reservation request requires an `Idempotency-Key`. A UUID or another high-entropy, checkout-attempt identifier is recommended. Retrying the same logical request with the same key returns the original reservation and includes `Idempotency-Replayed: true`. Reusing a key with different input returns `409 Conflict`.
+Every reservation request requires an `Idempotency-Key`. Keys are case-sensitive. A UUID or another high-entropy, checkout-attempt identifier is recommended. Retrying the same logical request with the same key returns the original reservation and includes `Idempotency-Replayed: true`. Reusing a key with different input returns `409 Conflict`.
 
 `ttl_seconds` must be between 1 and 3600. A request may contain 1 to 100 distinct products.
 

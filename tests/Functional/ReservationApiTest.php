@@ -54,6 +54,24 @@ final class ReservationApiTest extends ApiTestCase
         self::assertSame('/problems/idempotency-key-reused', $problem['type']);
     }
 
+    public function testIdempotencyKeysAreCaseSensitive(): void
+    {
+        $product = $this->createProduct('CASE-SENSITIVE-KEYS', 2);
+        $body = [
+            'ttl_seconds' => 120,
+            'items' => [['product_id' => $product['id'], 'quantity' => 1]],
+        ];
+
+        $first = $this->reserve($body, 'Checkout-Attempt');
+        self::assertResponseStatusCodeSame(201);
+
+        $second = $this->reserve($body, 'checkout-attempt');
+        self::assertResponseStatusCodeSame(201);
+        self::assertNotSame($first['id'], $second['id']);
+        self::assertNull($this->client->getResponse()->headers->get('Idempotency-Replayed'));
+        self::assertSame(2, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM reservations'));
+    }
+
     public function testExpiredReservationStopsHoldingStock(): void
     {
         $product = $this->createProduct('KEYBOARD', 1);
