@@ -39,6 +39,19 @@ jobs:
           docker compose exec -T php php bin/console lint:container
           docker compose exec -T php php bin/console doctrine:migrations:up-to-date --env=test
 
+      - name: Validate production Compose configuration
+        run: |
+          if env -u PRODUCTION_APP_SECRET -u CADDY_MERCURE_JWT_SECRET -u MYSQL_PASSWORD -u MYSQL_ROOT_PASSWORD \
+            docker compose -f compose.yaml -f compose.prod.yaml config --quiet 2>/dev/null; then
+            echo 'Production configuration accepted missing secrets.' >&2
+            exit 1
+          fi
+          PRODUCTION_APP_SECRET=ci-app-secret \
+          CADDY_MERCURE_JWT_SECRET=ci-mercure-secret \
+          MYSQL_PASSWORD=ci-database-password \
+          MYSQL_ROOT_PASSWORD=ci-root-database-password \
+            docker compose -f compose.yaml -f compose.prod.yaml config --quiet
+
       - name: Show logs on failure
         if: failure()
         run: docker compose logs --no-color

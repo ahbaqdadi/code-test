@@ -7,6 +7,13 @@ services:
       context: .
       target: frankenphp_prod
     environment:
-      APP_SECRET: ${APP_SECRET}
-      MERCURE_PUBLISHER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET}
-      MERCURE_SUBSCRIBER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET}
+      APP_SECRET: "${PRODUCTION_APP_SECRET:?Set PRODUCTION_APP_SECRET to a cryptographically secure value}"
+      DATABASE_URL: "mysql://${MYSQL_USER:-app}:${MYSQL_PASSWORD:?Set MYSQL_PASSWORD to a strong value}@database:3306/${MYSQL_DATABASE:-app}?serverVersion=${MYSQL_SERVER_VERSION:-8.4.0}&charset=utf8mb4"
+      MERCURE_JWT_SECRET: "${CADDY_MERCURE_JWT_SECRET:?Set CADDY_MERCURE_JWT_SECRET to a cryptographically secure value}"
+      MERCURE_PUBLISHER_JWT_KEY: "${CADDY_MERCURE_JWT_SECRET:?Set CADDY_MERCURE_JWT_SECRET to a cryptographically secure value}"
+      MERCURE_SUBSCRIBER_JWT_KEY: "${CADDY_MERCURE_JWT_SECRET:?Set CADDY_MERCURE_JWT_SECRET to a cryptographically secure value}"
+
+  database:
+    environment:
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD:?Set MYSQL_PASSWORD to a strong value}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD to a strong value}"

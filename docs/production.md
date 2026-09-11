@@ -77,22 +77,29 @@ git clone git@github.com:<username>/<project-name>.git
 ```
 
 Go into the directory containing your project (`<project-name>`),
-and start the app in production mode:
+generate independent secrets, and start the app in production mode:
 
 ```console
+# Generate these once and store them in your deployment platform's secret store.
+export PRODUCTION_APP_SECRET="$(openssl rand -hex 32)"
+export CADDY_MERCURE_JWT_SECRET="$(openssl rand -hex 32)"
+export MYSQL_PASSWORD="$(openssl rand -hex 32)"
+export MYSQL_ROOT_PASSWORD="$(openssl rand -hex 32)"
+
 # Build fresh production image
 docker compose -f compose.yaml -f compose.prod.yaml build --pull --no-cache
 
 # Start container
 SERVER_NAME=your-domain-name.example.com \
-APP_SECRET=ChangeMe \
-CADDY_MERCURE_JWT_SECRET=ChangeThisMercureHubJWTSecretKey \
 docker compose -f compose.yaml -f compose.prod.yaml up --wait
 ```
 
-Be sure to replace `your-domain-name.example.com` with your actual domain name
-and to set the values of `APP_SECRET`, `CADDY_MERCURE_JWT_SECRET`
-to cryptographically secure random values.
+Be sure to replace `your-domain-name.example.com` with your actual domain name.
+Production Compose maps `PRODUCTION_APP_SECRET` to Symfony's `APP_SECRET`; the
+distinct input name prevents the development value in `.env` from being reused by
+accident. Production Compose commands fail before starting containers when it,
+`CADDY_MERCURE_JWT_SECRET`, `MYSQL_PASSWORD`, or `MYSQL_ROOT_PASSWORD` is missing
+or empty. Keep these values stable across deployments and never commit them.
 
 Your server is up and running, and a HTTPS certificate has been automatically
 generated for you.
@@ -110,9 +117,12 @@ Alternatively, if you don't want to expose an HTTPS server but only an HTTP one,
 run the following command:
 
 ```console
+export PRODUCTION_APP_SECRET="$(openssl rand -hex 32)"
+export CADDY_MERCURE_JWT_SECRET="$(openssl rand -hex 32)"
+export MYSQL_PASSWORD="$(openssl rand -hex 32)"
+export MYSQL_ROOT_PASSWORD="$(openssl rand -hex 32)"
+
 SERVER_NAME=:80 \
-APP_SECRET=ChangeMe \
-CADDY_MERCURE_JWT_SECRET=ChangeThisMercureHubJWTSecretKey \
 docker compose -f compose.yaml -f compose.prod.yaml up --wait
 ```
 
