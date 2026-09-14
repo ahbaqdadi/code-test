@@ -33,6 +33,9 @@ jobs:
       - name: Run tests
         run: docker compose exec -T -e XDEBUG_MODE=off php php bin/phpunit
 
+      - name: Audit locked dependencies
+        run: docker compose exec -T php composer audit --locked --no-interaction
+
       - name: Validate project
         run: |
           docker compose exec -T php composer validate --strict
